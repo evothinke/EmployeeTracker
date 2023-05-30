@@ -225,6 +225,62 @@ function addRole() {
       mainMenu()
     });
 }
+// ______________________________________________________________________________________________ addEmployee
+function addEmployee() {
+  console.clear(); // Clear the console
+  
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        message: 'First Name',
+        name: 'first_name',
+      },
+      {
+        type: 'input',
+        message: 'Last Name',
+        name: 'last_name',
+      },
+      {
+        type: 'list',
+        message: 'What is the employees role?',
+        name: 'role',
+        choices: function () {
+          // Dynamically generate the choices by executing a SQL query
+          return new Promise((resolve, reject) => {
+            connection.query('SELECT title FROM Role', (err, res) => {
+              if (err) {
+                reject(err);
+              } else {
+                const roleTitle = res.map(role => `${role.title}`);
+                resolve(roleTitle);
+              }
+            });
+          });
+        },
+      },
+      {
+        type: 'input',
+        message: 'Manager Id',
+        name: 'manager_id',
+      },
+    ])
+    .then((response) => {
+      connection.query(
+        `INSERT INTO Employees (first_name, last_name, role_id) 
+         VALUES ('${response.first_name}', '${response.last_name}', (SELECT id FROM Role WHERE title = '${response.role}'))`,
+        (err, res) => {
+          if (err) {
+            console.error('Error executing query:', err);
+            return;
+          }
+          console.log(`The employee '${response.first_name}', '${response.last_name}' has been added successfully.`);
+        }
+      );
 
+
+      mainMenu()
+    });
+}
 
 mainMenu();
