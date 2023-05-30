@@ -18,7 +18,7 @@ function runSchema() {
   connection.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME}`, (err) => {
     if (err) {
       console.error('Error creating database:', err);
-
+      // connection.end(); // Close the connection
       return;
     }
 
@@ -26,7 +26,7 @@ function runSchema() {
     connection.changeUser({ database: process.env.DB_NAME }, (err) => {
       if (err) {
         console.error('Error connecting to the database:', err);
-       
+        // connection.end(); // Close the connection
         return;
       }
 
@@ -35,11 +35,11 @@ function runSchema() {
         if (err) {
           console.error('Error executing schema SQL:', err);
         } else {
-          console.log('Schema executed successfully.');
+          //console.log('Schema executed successfully.');
           runSeed(); // Call the runSeed function after executing the schema SQL
         }
 
-       
+        // connection.end(); // Close the connection
       });
     });
   });
@@ -54,10 +54,9 @@ function runSeed() {
     if (err) {
       console.error('Error executing seed SQL:', err);
     } else {
-      console.log('Seed executed successfully.');
+      //console.log('Seed executed successfully.');
     }
 
-    // connection.end(); // Close the connection after executing the seed SQL
   });
 }
 
@@ -72,40 +71,38 @@ connection.connect((err) => {
   }
 });
 
-
+// ______________________________________________________________________________________________ mainMenu
 const mainMenu = () => {
-  inquirer.prompt([
-    {
-      type: 'list',
-      name: 'main-menu',
-      message: 'Please choose from the following options:',
-      prefix: '-',
-      suffix: '-',
-      pageSize: 10,
-      choices: [
-        { name: 'View all departments' },
-        { name: 'View all roles' },
-        { name: 'View all employees' },
-        { name: 'Add a department' },
-        { name: 'Add a role' },
-        { name: 'Add an employee' },
-        { name: 'Update an employee role' }
-      ]
-    }
-  ])
+  //console.clear(); // Clear the console
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'main-menu',
+        choices: [
+          'View all departments',
+          'View all roles',
+          'View all employees',
+          'Add a department',
+          'Add a role',
+          'Add an employee',
+          'Update an employee role',
+          'Delete a Department',
+          'Delete a Role',
+          'Delete an Employee'
+        ]
+      }
+    ])
     .then((response) => {
       const selectedChoice = response['main-menu'];
       switch (selectedChoice) {
         case 'View all departments':
-          console.clear();
           viewDepartments();
           break;
         case 'View all roles':
-          console.clear();
           viewRoles();
           break;
         case 'View all employees':
-          console.clear();
           viewEmployees();
           break;
         case 'Add a department':
@@ -120,71 +117,65 @@ const mainMenu = () => {
         case 'Update an employee role':
           updateEmployee();
           break;
+        case 'Delete a Department':
+          deleteDepartment();
+          break;
+        case 'Delete a Role':
+          deleteRole();
+          break;
+        case 'Delete an Employee':
+          deleteEmployee();
+          break;
         case 'Exit':
-          console.log('Bye!');
           connection.end();
       }
     });
 };
 
-
+// ______________________________________________________________________________________________ viewDepartments
 const viewDepartments = () => {
+  console.clear(); // Clear the console
   connection.query('SELECT * FROM department', (err, res) => {
-    if (err) throw err;
-    mainMenu();
+    if (err) {
+      console.error('Error executing query:', err);
+      return;
+    }
     console.table(res);
-    
+    mainMenu()
   });
 };
 
+// ______________________________________________________________________________________________ viewRoles
 function viewRoles() {
-  connection.query('SELECT * FROM role', (err, rows) => {
+  console.clear(); // Clear the console
+  connection.query('SELECT * FROM Role', (err, rows) => {
     if (err) {
       console.error('Error executing query:', err);
       return;
     }
 
-    mainMenu();
-    console.log('Contents of roles:');
+    // console.log('Contents of roles:');
     console.table(rows);
+    //setTimeout(mainMenu, 1000000);
+    mainMenu()
   });
 }
-
+// ______________________________________________________________________________________________ viewEmployees
 function viewEmployees() {
+  console.clear(); // Clear the console
   connection.query('SELECT * FROM employees', (err, rows) => {
     if (err) {
       console.error('Error executing query:', err);
       return;
     }
 
-    mainMenu();
-    console.log('Contents of employees:');
+    
     console.table(rows);
+    mainMenu()
+   
   });
 }
 
-function addRole() {
-  
-  console.log('Add a role');
-  mainMenu();
-}
 
-function addEmployee() {
-  
-  console.log('Add an employee');
-  // mainMenu();
-}
-
-function addDepartment() {
-  
-  console.log('Add a department');
-  mainMenu();
-}
-
-function updateEmployee() {
-
-  console.log('Update an employee role');
-  mainMenu();
-}
 
 mainMenu();
