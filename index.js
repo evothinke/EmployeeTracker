@@ -306,7 +306,101 @@ function addDepartment() {
       mainMenu()
     });
 }
+// ______________________________________________________________________________________________ updateEmployee
+function updateEmployee() {
+  console.clear(); // Clear the console
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        message: 'Which employee would you like to update?',
+        name: 'updateEmployee',
+        choices: function () {
+          // Dynamically generate the choices by executing a SQL query
+          return new Promise((resolve, reject) => {
+            connection.query('SELECT first_name, last_name FROM Employees', (err, res) => {
+              if (err) {
+                reject(err);
+              } else {
+                const employees = res.map(employees => `${employees.first_name} ${employees.last_name}`);
+                resolve(employees);
+              }
+            });
+          });
+        },
+      },
+      {
+        type: 'list',
+        message: 'What is their new role?',
+        name: 'newRole',
+        choices: function () {
+          return new Promise((resolve, reject) => {
+            connection.query('SELECT title FROM role', (err, res) => {
+              if (err) {
+                reject(err);
+              } else {
+                const roles = res.map(role => role.title);
+                resolve(roles);
+              }
+            });
+          });
+        }
+      },
+    ])
+    .then((response) => {
+      const selectedEmployee = response.updateEmployee;
+      const newRole = response.newRole;
+      const query = `UPDATE Employees SET role_id = (SELECT id FROM Role WHERE title = '${newRole}') WHERE CONCAT(first_name, ' ', last_name) = '${selectedEmployee}'`;
+      connection.query(query, (err, res) => {
+        if (err) {
+          console.error('Error executing query:', err);
+        } else {
+          console.log('Employee updated.');
+        }
+        mainMenu(); // Go back to the main menu
+      });
 
+    })
+}
+// ______________________________________________________________________________________________ deleteDepartment
+function deleteDepartment() {
+  console.clear(); // Clear the console
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        message: 'What department do you want to delete?',
+        name: 'deptList',
+        choices: function () {
+          // Dynamically generate the choices by executing a SQL query
+          return new Promise((resolve, reject) => {
+            connection.query('SELECT department_name FROM department', (err, res) => {
+              if (err) {
+                reject(err);
+              } else {
+                const departments = res.map(department => department.department_name);
+                resolve(departments);
+              }
+            });
+          });
+        },
+      },
+    ])
+    .then((response) => {
+      const departmentName = response.deptList;
 
+      connection.query(
+        `DELETE FROM department WHERE department_name = '${departmentName}'`,
+        (err, res) => {
+          if (err) {
+            console.error('Error executing query:', err);
+          } else {
+            console.log('Department deleted.');
+          }
+          mainMenu();
+        }
+      );
+    });
+}
 
 mainMenu();
