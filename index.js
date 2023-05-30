@@ -282,5 +282,28 @@ function addEmployee() {
       mainMenu()
     });
 }
-
+// ______________________________________________________________________________________________ addDepartment
+function addDepartment() {
+  console.clear(); // Clear the console
+  
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        message: 'What department would you like to add?',
+        name: 'addDepartment',
+      },
+    ])
+    .then((response) => {
+      connection.query(`INSERT INTO department (department_name) 
+  VALUES ('${response.addDepartment}')`, (err, res) => {
+        if (err) {
+          console.error('Error executing query:', err);
+          return;
+        }
+        console.log(`'${response.addDepartment}' has been added successfully.'`)
+      });
+      mainMenu()
+    });
+}
 mainMenu();
