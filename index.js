@@ -402,5 +402,48 @@ function deleteDepartment() {
       );
     });
 }
+// ______________________________________________________________________________________________ delete Employee
+function deleteEmployee() {
+  console.clear(); // Clear the console
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        message: 'What employee would you like to delete?',
+        name: 'employeeList',
+        choices: function () {
+          // Dynamically generate the choices by executing a SQL query
+          return new Promise((resolve, reject) => {
+            connection.query('SELECT first_name, last_name FROM employees', (err, res) => {
+              if (err) {
+                reject(err);
+              } else {
+                const employees = res.map(employee => `${employee.first_name} ${employee.last_name}`);
+                resolve(employees);
+              }
+            });
+          });
+        },
+      },
+    ])
+    .then((response) => {
+      const selectedEmployee = response.employeeList;
+      const [firstName, lastName] = selectedEmployee.split(' ');
+
+      connection.query(
+        `DELETE FROM employees WHERE first_name = '${firstName}' AND last_name = '${lastName}'`,
+        (err, res) => {
+          if (err) {
+            console.error('Error executing query:', err);
+          } else {
+            console.log('Employee deleted.');
+          }
+          mainMenu();
+        }
+      );
+    });
+}
+
+
 
 mainMenu();
