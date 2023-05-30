@@ -306,4 +306,7 @@ function addDepartment() {
       mainMenu()
     });
 }
+
+
+
 mainMenu();
