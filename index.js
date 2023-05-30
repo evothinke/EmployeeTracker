@@ -444,6 +444,45 @@ function deleteEmployee() {
     });
 }
 
+// ______________________________________________________________________________________________ deleteRole
+function deleteRole() {
+  console.clear(); // Clear the console
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        message: 'Which role would you like to delete?',
+        name: 'roleList',
+        choices: function () {
+          // Dynamically generate the choices by executing a SQL query
+          return new Promise((resolve, reject) => {
+            connection.query('SELECT title FROM Role', (err, res) => {
+              if (err) {
+                reject(err);
+              } else {
+                const roles = res.map(role => role.title);
+                resolve(roles);
+              }
+            });
+          });
+        },
+      },
+    ])
+    .then((response) => {
+      const selectedRole = response.roleList;
 
+      connection.query(
+        `DELETE FROM Role WHERE title = '${selectedRole}'`,
+        (err, res) => {
+          if (err) {
+            console.error('Error executing query:', err);
+          } else {
+            console.log('Role deleted.');
+          }
+          mainMenu();
+        }
+      );
+    });
+}
 
 mainMenu();
