@@ -175,7 +175,56 @@ function viewEmployees() {
    
   });
 }
-
+// ______________________________________________________________________________________________ addRole
+function addRole() {
+  console.clear(); 
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        message: 'What name of the role?',
+        name: 'title'
+      },
+      {
+        type: 'input',
+        message: 'What is the salary?',
+        name: 'salary'
+      },
+      {
+        type: 'list',
+        message: 'What is the department for the role?',
+        name: 'role',
+        choices: function () {
+          // Dynamically generate the choices by executing a SQL query
+          return new Promise((resolve, reject) => {
+            connection.query('SELECT department_name FROM department', (err, res) => {
+              if (err) {
+                reject(err);
+              } else {
+                const roleDepartment = res.map(department => `${department.department_name}`);
+                resolve(roleDepartment);
+              }
+            });
+          });
+        },
+      },
+    ])
+    .then((response) => {
+      connection.query(
+        `INSERT INTO role (title, salary, department_id) 
+         VALUES ('${response.title}', '${response.salary}', (SELECT id FROM department WHERE department_name = '${response.role}'))`,
+        (err, res) => {
+          if (err) {
+            console.error('Error executing query:', err);
+            return;
+          }
+        }
+        );
+        console.log(`The role '${response.title}' has been added successfully.`);
+      
+      mainMenu()
+    });
+}
 
 
 mainMenu();
