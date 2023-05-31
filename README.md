@@ -2,6 +2,7 @@
 
 This is a project that interacts with a MySQL database using Node.js. It allows you to perform various operations on the database such as viewing departments, roles, and employees, adding departments, roles, and employees, updating employee roles, and deleting departments, roles, and employees.
 
+<a href="https://drive.google.com/file/d/1CQTs84D9Khe1yrXtNCCEqH0qtKkLDvtq/view?usp=sharing">See</a> the app in action.
 ## Installation
 
 1. Clone the repository
